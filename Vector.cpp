@@ -4,20 +4,25 @@ using namespace std;
 class Vector
 {
 private:
-    int sizeV;
+    int size;
     double *V;
 public:
-    Vector(int sizeV);
+    Vector(int size);
     Vector MultMatrixInVector(Matrix A); //умножение матрицы на векто
     ~Vector();
+    double &operator[](int j) //перегрузка []     
+    {
+        return V[j];
+    }
+    void ShowData();
 };
 
 
-Vector::Vector(int sizeV) : sizeV(sizeV)
+Vector::Vector(int size) : size(size)
 {
-	sizeV = sizeV;
-    V = new double [sizeV];
-    for(int i = 0; i < sizeV; i++)
+	size = size;
+    V = new double [size];
+    for(int i = 0; i < size; i++)
     {
         V[i] = 0;
     }
@@ -29,9 +34,15 @@ Vector::~Vector()
 
 Vector Vector::MultMatrixInVector(Matrix A)
 {
-    Vector result(sizeV); //создали vector result
-    for(int i=0;i<sizeV;i++) //перемещаемся по столбцам матрицы result
-        for(int j=0;j<sizeV;j++) //индекс который меняется при умножении
-            result.V[i]= result.V[i] + A.Ret(i,j) * V[j];
+    Vector result(size); //создали vector result
+    for(int i=0;i<size;i++) //перемещаемся по столбцам матрицы result
+        for(int j=0;j<size;j++) //индекс который меняется при умножении
+            result.V[i]= result.V[i] + A.ReturnElementMatrix(i,j) * V[j];
     return result;
+}
+
+void Vector::ShowData()
+{
+	for(int i=0;i<size;++i)
+		cout<<V[i]<<"\n";
 }
