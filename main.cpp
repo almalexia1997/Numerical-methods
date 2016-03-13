@@ -56,6 +56,7 @@ int main()
     At.Inverse(size,A);
     At.showData();
 
+    cout<<endl;
     S.showData();
     cout<<endl;
     St.showData();
