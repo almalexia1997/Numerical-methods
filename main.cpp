@@ -62,28 +62,28 @@ int main()
 {
     int size;
     cout<<"size=";cin>>size;
-    Matrix A(size); //ñîçäàåì ìàòðèöó
+    Matrix A(size); //создаем матрицу
     for(int i=0; i<size; ++i)
         for(int j=0; j<size; ++j)
         {
             cout<<"A["<<i+1<<"]["<<j+1<<"]=";
             cin>>A[i][j];
         }
-    Vector b(size); //ñîçäàåì âåêòîð ñâîáîäíûõ ÷ëåíîâ
+    Vector b(size); //создаем вектор свободных членов
     for (int i=0;i<size;++i)
     {
         cout<<"b["<<i+1<<"]=";
         cin>>b[i];
     }
 
-    Matrix S(size); //ñîçäàåì ìàòðèöó äëÿ ðàçëîæåíèÿ Õîëåöêîãî
+    Matrix S(size); //создаем матрицу для разложения Холецкого
     Matrix St(size);
     Matrix D(size);
-    StraightCourse(A,S,D,size); //ïðÿìîé õîä
+    StraightCourse(A,S,D,size); //прямой ход
     St.Inverse(size,S);
 
-    Vector x(size); //èñêîìûé âåêòîð
-    Reverse(b,x,S,D,size); //îáðàòíûé õîä
+    Vector x(size); //искомый вектор
+    Reverse(b,x,S,D,size); //обратный ход
 
     /*A.showData();
     cout<<endl;
