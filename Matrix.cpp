@@ -1,4 +1,3 @@
-
 using namespace std;
 
 class Matrix //класс матрицы
@@ -11,12 +10,12 @@ public:
     Matrix MultMatrix(Matrix B); //умножение матриц    
     Matrix SumMatrix(Matrix B); //сложение матриц
     Matrix SubMatrix(Matrix B); //вычитание матриц
-    Matrix Inverse(int size, Matrix B); //транспонированная матрица
+    void Inverse(int size, Matrix B); //транспонированная матрица
     void showData();         //вывод данных массива на экран
     ~Matrix(); //деструктор матрицы
-    double Ret(int i,int j);
+    double ReturnElementMatrix(int i,int j);
     
-//*********************************************************************
+//********************************************************************************************
 
     double *operator [](int i) //взять элемент матрицы
     {
@@ -39,6 +38,7 @@ public:
     }
 };
 
+//----------------------------------------------------------------------------------------------
 
 Matrix::Matrix(int size) : size(size)
 {
@@ -78,7 +78,7 @@ Matrix Matrix::SubMatrix(Matrix B) //вычитание матриц
             result.A[i][j] = A[i][j] - B.A[i][j];
     return result;
 }
-Matrix Matrix::Inverse(int size, Matrix A) //транспонированная матрица
+void Matrix::Inverse(int size, Matrix A) //транспонированная матрица
 {
     for(int i=0; i<size;i++)
         for(int j=0;j<size;j++)
@@ -101,7 +101,7 @@ Matrix::~Matrix()
     delete[] A;
 };
 
-double Matrix::Ret(int i,int j)
+double Matrix::ReturnElementMatrix(int i,int j)
 {
     return A[i][j];
 }
