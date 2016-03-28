@@ -1,3 +1,6 @@
+#include <ctime> // в ней функция time
+#include <cstdlib>
+
 using namespace std;
 
 class Matrix //класс матрицы
@@ -6,15 +9,19 @@ private:
     int size;//переменная для размера матрицы
     double **A; //здесь храниться матрица
 public:
+//********************************************************************************************
+
     Matrix(int size); //конструктор матрицы
-    Matrix MultMatrix(Matrix B); //умножение матриц    
+    Matrix MultMatrix(Matrix B); //умножение матриц
     Matrix SumMatrix(Matrix B); //сложение матриц
     Matrix SubMatrix(Matrix B); //вычитание матриц
     void Inverse(int size, Matrix B); //транспонированная матрица
     void showData();         //вывод данных массива на экран
     ~Matrix(); //деструктор матрицы
     double ReturnElementMatrix(int i,int j);
-    
+    void Random();
+    void Kroneker();
+
 //********************************************************************************************
 
     double *operator [](int i) //взять элемент матрицы
@@ -36,9 +43,19 @@ public:
         }
         return *this;
     }
+
+    Matrix operator= ( const Matrix &obj ) {
+        //копируем obj
+        for ( int i = 0; i < size; i++ ) {
+            for ( int j = 0; j < size; j++) {
+                    A[i][j] = obj.A[i][j];            
+            }
+        }    
+        return *this;
+    }
 };
 
-//----------------------------------------------------------------------------------------------
+//********************************************************************************************
 
 Matrix::Matrix(int size) : size(size)
 {
@@ -106,4 +123,28 @@ double Matrix::ReturnElementMatrix(int i,int j)
     return A[i][j];
 }
 
+void Matrix::Random()
+{
+    srand(time(NULL)); // Инициализируем генератор случайных чисел.
+    // А дальше работа как с обычным массивом.
+    for (int i = 0; i < size; i++)
+    {
+        for (int j = 0; j < size; j++)
+        {
+            (*this).A[i][j] = rand() % 10; // Каждый элемент случайному числу от 0 до 9
+        }
+    }
+}
 
+void Matrix::Kroneker(){
+    for (int i = 0; i < size; i++)
+    {
+        for (int j = 0; j < size; j++)
+        {
+            if(i==j)
+                A[i][j]=1;
+            else
+                A[i][j]=0;
+        }
+    }
+}
