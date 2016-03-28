@@ -1,109 +1,152 @@
+#include <iostream>
+#include <cmath>
+#include "Matrix.cpp"
+#include "Vector.cpp"
+
 using namespace std;
 
-class Matrix //класс матрицы
+/*void StraightCourse(Matrix A,Matrix S,Matrix D,int size)
 {
-private:
-    int size;//переменная для размера матрицы
-    double **A; //здесь храниться матрица
-public:
-    Matrix(int size); //конструктор матрицы
-    Matrix MultMatrix(Matrix B); //умножение матриц    
-    Matrix SumMatrix(Matrix B); //сложение матриц
-    Matrix SubMatrix(Matrix B); //вычитание матриц
-    void Inverse(int size, Matrix B); //транспонированная матрица
-    void showData();         //вывод данных массива на экран
-    ~Matrix(); //деструктор матрицы
-    double ReturnElementMatrix(int i,int j);
-    
-//********************************************************************************************
-
-    double *operator [](int i) //взять элемент матрицы
+    double sum1=0;
+    double sum2=0;
+    (A[0][0]>0)? D[0][0]=1 : D[0][0]=-1;
+    S[0][0]=sqrt(abs(A[0][0]));
+    for(int j=1;j<size;++j)
+        S[0][j]=A[0][j]/S[0][0];
+    for(int i=0;i<size;++i)
     {
-        return A[i];
-    }
-    Matrix& operator=( Matrix &B ) //перегрузка оператора присваивания
-    {
-        for(int i=0;i<size; ++i)
-            delete[] A[i];
-        delete[] A;
-        size = B.size;
-        A=new double *[size];
-        for(int i = 0; i < size; ++i)
+        for(int j=0;j<size;++j)
         {
-            A[i]=new double [size];
-            for (int j = 0; j < size; ++j)
-                A[i][j] = B.A[i][j];
+
+            if(i==j)
+            {
+                for(int k=0;k<i;++k)
+                    double sum1=sum1+D[k][k]*S[k][i]*S[k][i];
+                ((A[i][i]-sum1)>0)? D[i][i]=1 : D[i][i]=-1;
+                S[i][i]=sqrt(abs(A[i][i]-sum1));
+            }
+            else if(i<j)
+            {
+                for(int k=0;k<i;++k)
+                    sum2=sum2+D[k][k]*S[k][i]*S[k][j];
+                S[i][j]=(A[i][j]-sum2)/(S[i][i]*D[i][i]);
+            }
+            else
+                S[i][j]=0;
         }
-        return *this;
     }
-};
+}*/
 
-//----------------------------------------------------------------------------------------------
-
-Matrix::Matrix(int size) : size(size)
+void StraightCourse(Matrix A,Matrix S,Matrix D,int size)
 {
-    //создаем матрицу
-    A=new double *[size];
-    for(int i = 0; i < size; ++i)
+    double sum1=0;
+    double sum2=0;
+    S[0][0]=sqrt(abs(A[0][0]));
+    for(int j=1;j<size;++j)
+        S[0][j]=A[0][j]/S[0][0];
+    for(int i=0;i<size;++i)
     {
-        A[i]=new double [size];
-        for (int j = 0; j < size; ++j)
-            A[i][j] = 0;
+        for(int j=0;j<size;++j)
+        {
+
+            if(i==j)
+            {
+                for(int k=0;k<i;++k)
+                    double sum1=sum1+S[k][i]*S[k][i];
+                S[i][i]=sqrt(abs(A[i][i]-sum1));
+            }
+            else if(i<j)
+            {
+                for(int k=0;k<i;++k)
+                    sum2=sum2+S[k][i]*S[k][j];
+                S[i][j]=(A[i][j]-sum2)/(S[i][i]);
+            }
+            else
+                S[i][j]=0;
+        }
     }
 }
 
-Matrix Matrix::MultMatrix(Matrix B) //умножение матриц
-{
-    Matrix result(size); //создали матрицу result
-    for(int k=0; k<size;k++) //перемещаемся по строкам матрицы result
-        for(int i=0;i<size;i++) //перемещаемся по столбцам матрицы result
-            for(int j=0;j<size;j++) //индекс который меняется при умножении
-                result.A[k][i]= result.A[k][i] + A[k][j] * B.A[j][i];
-    return result;
-}
+//
 
-Matrix Matrix::SumMatrix(Matrix B) //сложение матриц
+/*void Reverse(Vector b, Vector x, Matrix S, Matrix D, int size)
 {
-    Matrix result(size);
-    for(int i=0; i<size;i++)
-        for(int j=0;j<size;j++)
-            result.A[i][j] = A[i][j] + B.A[i][j];
-    return result;
-}
-Matrix Matrix::SubMatrix(Matrix B) //вычитание матриц
-{
-    Matrix result(size);
-    for(int i=0; i<size;i++)
-        for(int j=0;j<size;j++)
-            result.A[i][j] = A[i][j] - B.A[i][j];
-    return result;
-}
-void Matrix::Inverse(int size, Matrix A) //транспонированная матрица
-{
-    for(int i=0; i<size;i++)
-        for(int j=0;j<size;j++)
-            (*this).A[i][j] = A.A[j][i];
-}
-
-void Matrix::showData()         //вывод данных массива на экран
-{
-    for(int i = 0; i < size; i++)
+    int sum1=0;
+    int sum2=0;
+    Vector y(size);
+    y[0]=b[0]/(S[0][0]*D[0][0]);
+    for(int i=1;i<size;++i)
     {
-        for(int j = 0; j < size ; ++j)
-            cout << A[i][j] << "  ";
-        cout << endl;
+        for(int k=0;k<=i-1;++k)
+            sum1=sum1+D[k][k]*S[k][i]*y[k];
+        y[i]=(b[i]-sum1)/(S[i][i]*D[i][i]);
+    }
+    x[size-1]=y[size-1]/S[size-1][size-1];
+    for(int i=size;i>=0;--i)
+    {
+        for(int k=size;k>i;--k)
+            sum2=sum2+S[i][k]*x[k];
+        x[i]=(y[i]-sum2)/S[i][i];
+    }
+}*/
+
+void Reverse(Vector b, Vector x, Matrix S, Matrix D, int size)
+{
+    int sum1=0;
+    int sum2=0;
+    Vector y(size);
+    y[0]=b[0]/(S[0][0]);
+    for(int i=1;i<size;++i)
+    {
+        for(int k=0;k<i;++k)
+            sum1=sum1+S[k][i]*y[k];
+        y[i]=(b[i]-sum1)/(S[i][i]);
+    }
+    x[size-1]=y[size-1]/S[size-1][size-1];
+    for(int i=size-2;i>=0;--i)
+    {
+        for(int k=size-1;k>i;--k)
+            sum2=sum2+S[i][k]*x[k];
+        x[i]=(y[i]-sum2)/S[i][i];
     }
 }
-Matrix::~Matrix()
-{
-    for(int i=0;i<size; ++i)
-        delete[] A[i];
-    delete[] A;
-};
 
-double Matrix::ReturnElementMatrix(int i,int j)
+int main()
 {
-    return A[i][j];
-}
+    int size;
+    cout<<"size=";cin>>size;
+    Matrix A(size); //matrix coefficients
+    for(int i=0; i<size; ++i)
+        for(int j=0; j<size; ++j)
+        {
+            cout<<"A["<<i+1<<"]["<<j+1<<"]=";
+            cin>>A[i][j];
+        }
+    Vector b(size); //We create a vector of free terms
+    for (int i=0;i<size;++i)
+    {
+        cout<<"b["<<i+1<<"]=";
+        cin>>b[i];
+    }
+
+    Matrix S(size); //matrix decomposition
+    Matrix St(size);//transposed matrix decomposition
+    Matrix D(size); //diagonal matrix
+    StraightCourse(A,S,D,size); //create matrix decomposition
+    St.Inverse(size,S); //create transposed matrix decomposition
+    cout<<"\nMatrix A"<<endl;
+    A.showData();
+    cout<<"\nVector b"<<endl;
+    b.ShowData();
+    cout<<"\nMatrix S"<<endl;
+    S.showData();
+    cout<<"\nMatrix St"<<endl;
+    St.showData();
+
+    Vector x(size); //unknown vector
+    Reverse(b,x,S,D,size);
+    cout<<"\nVector x"<<endl;
+    x.ShowData();
+};
 
 
