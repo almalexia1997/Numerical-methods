@@ -10,11 +10,19 @@ public:
     Vector(int size);
     Vector MultMatrixInVector(Matrix A); //умножение матрицы на векто
     ~Vector();
-    double &operator[](int j) //перегрузка []     
+    double &operator[](int j) //перегрузка []
     {
         return V[j];
     }
+    Vector operator= ( const Vector &obj ) {
+        //копируем obj
+        for ( int i = 0; i < size; i++ ) {
+            V[i] = obj.V[i];
+        }
+        return *this;
+    }
     void ShowData();
+    void Random();
 };
 
 
@@ -45,4 +53,12 @@ void Vector::ShowData()
 {
 	for(int i=0;i<size;++i)
 		cout<<V[i]<<"\n";
+}
+
+void Vector::Random()
+{
+    srand(time(NULL)); // Инициализируем генератор случайных чисел.
+    // А дальше работа как с обычным массивом.
+    for (int i = 0; i < size; i++)        
+    	(*this).V[i] = rand() % 10; // Каждый элемент случайному числу от 0 до 9
 }
