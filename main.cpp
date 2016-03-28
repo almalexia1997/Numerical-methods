@@ -3,7 +3,10 @@
 #include "Matrix.cpp"
 #include "Vector.cpp"
 
+
 using namespace std;
+
+const double eps=1e-2;
 
 /*void StraightCourse(Matrix A,Matrix S,Matrix D,int size)
 {
@@ -111,42 +114,58 @@ void Reverse(Vector b, Vector x, Matrix S, Matrix D, int size)
     }
 }
 
+bool Check(Matrix A, Vector x, Vector b, int size) {
+    bool *flag;
+    flag = new bool [size];
+    Vector Result(size);
+    Result = x.MultMatrixInVector(A);
+    cout<<"\nResult:"<<endl;
+    Result.ShowData();
+    for(int i=0;i<size;++i)
+        if(abs(Result[i]-x[i])>eps)
+            return false;
+        else
+            return true;
+
+}
+
 int main()
 {
     int size;
     cout<<"size=";cin>>size;
     Matrix A(size); //matrix coefficients
-    for(int i=0; i<size; ++i)
-        for(int j=0; j<size; ++j)
-        {
-            cout<<"A["<<i+1<<"]["<<j+1<<"]=";
-            cin>>A[i][j];
-        }
+    A.Random();
+    Matrix At(size);
+    At.Inverse(size,A);
+    Matrix A2(size);
+    A2=A.MultMatrix(At);
+    Matrix E(size);
+    E.Kroneker();
+    Matrix A3(size);
+    A3=A2.SumMatrix(E);
+    cout<<"\nMatrix A:"<<endl;
+    A3.showData();
     Vector b(size); //We create a vector of free terms
-    for (int i=0;i<size;++i)
-    {
-        cout<<"b["<<i+1<<"]=";
-        cin>>b[i];
-    }
+    b.Random();
+    cout<<"\nVector b"<<endl;
+    b.ShowData();
 
     Matrix S(size); //matrix decomposition
     Matrix St(size);//transposed matrix decomposition
     Matrix D(size); //diagonal matrix
-    StraightCourse(A,S,D,size); //create matrix decomposition
+    StraightCourse(A3,S,D,size); //create matrix decomposition
     St.Inverse(size,S); //create transposed matrix decomposition
-    cout<<"\nMatrix A"<<endl;
-    A.showData();
-    cout<<"\nVector b"<<endl;
-    b.ShowData();
-    cout<<"\nMatrix S"<<endl;
-    S.showData();
-    cout<<"\nMatrix St"<<endl;
-    St.showData();
 
     Vector x(size); //unknown vector
     Reverse(b,x,S,D,size);
     cout<<"\nVector x"<<endl;
     x.ShowData();
+
+    if(Check(A3,x,b,size))
+        cout<<"OK"<<endl;
+    else
+        cout<<":("<<endl;
+    return 0;
 };
 
 
