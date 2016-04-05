@@ -60,15 +60,15 @@ public:
 				A[i][j] = ceil(A[i][j]/(k*k));
 	}
 
-	void Trans(int size)
+	Matrix Trans(int size)
 	{
 		Matrix B(size);
-		B = (*this);
 		for (int i = 0; i<size; i++)
 			for (int j = 0; j < size; j++)
 			{
-				A[i][j] = B[j][i];
+				B[j][i] = A[i][j];
 			}
+		return B;
 	} //транспонированная матрица
 
 	void showData()
