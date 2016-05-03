@@ -5,7 +5,7 @@
 
 using namespace std;
 
-const double eps = 1e-10;
+const double eps = 1.0e-14;
 
 class Matrix {
 private:
@@ -149,42 +149,66 @@ public:
 	}
 
 	Matrix Povorot(Matrix A) {
-        int i,j;
-        int max=0;
-        Matrix T(size);
-        T.Kroneker();
-        for(int k=0; k<size; ++k)
-            for(int l=0; l<size; ++l)
-                if(k!=l && A[k][l]*A[k][l]>max){
-                    max = A[k][l];
-                    i=k; j=l;
-                }
-        double p = 2*A[i][j]/(A[i][i]-A[j][j]);
-        double sgnp;
-        (p>0)? sgnp=1: sgnp = -1;
-        double tg2fi = (2*A[i][j])/(A[i][i] - A[j][j]);
-        double fi=atan(tg2fi)/2;
-        double c = sqrt(1/2*(1+pow(1+p*p,-0.5)));
-        double s = sgnp*sqrt(1/2*(1-pow(1+p*p,-0.5)));
-        T.A[i][i] = c;
-        T.A[i][j] = -s;
-        T.A[j][i] = s;
-        T.A[j][j] = c;
-        return T;
+		int i=0, j=0;
+		double max = 0;
+		Matrix T(size); //матрица поворота
+		T.Kroneker(); //придаем всем элементам значения как в единичной
+		for (int k = 0; k<size; ++k)
+			for (int l = 0; l<size; ++l)
+				if (k != l && abs(A[k][l])>=max){ //ищем индексы i и j
+					max = A[k][l];
+					i = k; j = l;
+				}
+		cout << "\ni=" << i << "\nj=" << j << endl;
+		double p = 2.0 * A[i][j] / (A[i][i] - A[j][j]);
+		double sgnp;
+		(p>0) ? sgnp = 1 : sgnp = -1;
+		double fi = 0.5*atan(p); //находим угол фи
+		double c = sqrt(0.5 * (1.0 + (1.0/sqrt(1.0+p*p)))); //косинус фи
+		double s = sgnp*sqrt(0.5 * (1.0 - (1.0 / sqrt(1.0 + p*p))));	//синус фи
+		//определяем матрицу поворота
+		T.A[i][i] = c; 
+		T.A[i][j] = -s;
+		T.A[j][i] = s;
+		T.A[j][j] = c;
+		cout << "\nT:" << endl; T.showData();
+		return T; //возвращаем матрицу поворота
 	}
 
-    Matrix Jacoby(Matrix A){
-        Matrix B(size);
-        Matrix T(size);
-        Matrix Tt(size);
-        while(){
-            T=A.Povorot(A);
-            Tt=T.Trans();
-            B=T.MultMatrix(A);
-            A=C.MultMatrix(T);
-        }
-        return B;
-    }
+	Matrix Jacoby(Matrix A){
+		Matrix B(size); //матрица промежуточного умножения
+		Matrix V(size);
+		V = A;
+		Matrix T(size); //матрица поворота
+		Matrix Tt(size);//транспонированная к ней матрица
+		double sled1 = 0;//след исходной матрицы
+		double sled2 = 0;//след результата
+		/*double max = 0;
+		for (int i = 0; i<size; i++)
+			for (int j = 0; j < size; j++)
+				if (i != j && abs(V[i][j]) >= max)
+					max = abs(V[i][j]);*/
+		int ch = 0;
+		for (int i = 0; i < size; ++i)
+			sled1 += A[i][i]; //определеяем след исходной матрицы
+		while (abs(sled1-sled2)>eps){
+			T = V.Povorot(V);//определяем матрицу поворота
+			Tt = T.Trans(size);//определяем транспонированную к ней матрицу
+			B = Tt.MultMatrix(V);//находим T*A
+			V = B.MultMatrix(T); //находим T*AT и находим 
+			sled2 = 0;
+			for (int i = 0; i < size; ++i)
+				sled2 += V[i][i];
+			cout << "iteration #"<<ch<<"   sled1=" << sled1 << "    sled2=" << sled2 << endl; cout << "sled1-sled2=" << abs(sled1 - sled2)<<endl;
+			double max = 0;		
+			for (int i = 0; i<size; i++)
+				for (int j = 0; j < size; j++)
+					if (i != j && i<j && abs(V[i][j]) >= max)
+						max = abs(V[i][j]);
+			ch++;
+		}
+		return V;
+	}
 
 };
 
@@ -410,11 +434,12 @@ int main()
 
 	//Determined matrix
 	Matrix A(size); //matrix coefficients
-	Vector b(size);//We create a vector of free terms
-	Vector x(size); //We create an unknown vector
+	Matrix V(size);
 
 	//Algorithm
 	A = A.Symmetric(gamma);	//create a symmetric matrix
-
+	cout << "\nA:" << endl; A.showData();
+	V = A.Jacoby(A);
+	cout << "\nV:" << endl; V.showData();
 	return 0;
 };
