@@ -5,7 +5,7 @@
 
 using namespace std;
 
-const double eps = 1.0e-14;
+const double eps = 1.0e-3;
 
 class Matrix {
 private:
@@ -39,7 +39,20 @@ public:
 			for (int j = 0; j < size; ++j)
 				A[i][j] = B.A[i][j];
 		}
+		transpan = B.transpan; //копируем отметку транспанированности
+		turn = B.turn; //копируем отметку поворота
+		k = B.k; l = B.l; //копируем индексы
 	}
+
+	void CreateMatrix(){
+		for (int i = 0; i<size; i++) //перемещаемся по столбцам матрицы result
+			for (int j = 0; j < size; j++) //индекс который меняется при умножении
+			{
+				cout << "A[" << i + 1 << "][" << j + 1 << "]=";
+				cin >> A[i][j];
+			}
+	}
+
 	//умножение матриц
 	Matrix MultMatrix(Matrix B)
 	{
@@ -81,19 +94,7 @@ public:
 		for (int i = 0; i<size; i++)
 			for (int j = 0; j<size; j++)
 				A[i][j] = A[i][j] * k;
-	}
-	//транспонированние матрицы
-	Matrix Trans(int size)
-	{
-		Matrix B(size);
-		for (int i = 0; i<size; i++)
-			for (int j = 0; j < size; j++)
-				B[i][j] = A[j][i];
-		B.transpan = true;
-		B.turn = (*this).turn;
-		B.k = (*this).k; B.l = (*this).l;
-		return B;
-	}
+	}	
 	//вывод данных массива на экран
 	void showData()
 	{
@@ -157,7 +158,19 @@ public:
 		A = R.SumMatrix(E);
 		return A;
 	}
-
+	//транспонированние матрицы
+	Matrix Trans(int size)
+	{
+		Matrix B(size);
+		for (int i = 0; i<size; i++)
+			for (int j = 0; j < size; j++)
+				B[i][j] = A[j][i];
+		B.transpan = true; //помечаем как транспанированную
+		B.turn = turn; //наследуем отметку поворота
+		B.k = k; B.l = l; //то же самое и с индексами
+		return B;
+	}
+	//перегружаю оператор умножения матриц
 	Matrix operator *(Matrix B)
 	{
 		Matrix result(size); //создали матрицу result
@@ -168,60 +181,76 @@ public:
 				{
 					if (B.transpan == false && B.turn == true)//Если у нас умножение вида: A*T
 					{
+						//cout << "\nAt" << endl;
 						if (i != B.k && i != B.l) //копируем нужные столбцы
 							result.A[f][i] = (*this).A[f][i];
 						else //а все остальное умножаем как обычно
 							result.A[f][i] = result.A[f][i] + A[f][j] * B.A[j][i];
 					}
-					else if ((*this).transpan == true && (*this).turn == true)//Если у нас умножение вида: Tt*A
+					else if (transpan == true && turn == true)//Если у нас умножение вида: Tt*A
 					{
+						//cout << "\nTtA" << endl;
 						if (f != (*this).k && f != (*this).l) //копируем нужные строки
 							result.A[f][i] = B.A[f][i];
 						else //а все остальное умножаем как обычно
 							result.A[f][i] = result.A[f][i] + A[f][j] * B.A[j][i];
 					}
 					else //Если у нас умножение не на матрицу поворота, то умножаем как обычно
+					{
+						cout << "\nnichuya" << endl;
 						result.A[f][i] = result.A[f][i] + A[f][j] * B.A[j][i];
+					}
 				}
-
+			}
+		if (transpan == true && turn == true)
+		{
+			cout << "\nTt*A" << endl;
+			result.showData();
+		}
+		else {
+			cout << "\nTt*A*T" << endl;
+			result.showData();
 		}
 		return result;
 	}
 
 		
 	//нужная сумма квадрата внедиагональных элементов
-	double SumSquarNotDiagEl(){
-		double sum = 0;
+	double MaxEl(){
+		double max = 0;
 		for (int i = 0; i<size; i++)
 			for (int j = 0; j < size; j++)
-				if (i != j)
-					sum += (*this)[i][j] * (*this)[i][j];
-		return sum;
+				if (i != j && abs((*this)[i][j])>max)
+					max = (*this)[i][j];
+		return max;
 	}
 	Matrix Jacoby(){
+		//Объявление необходимых переменных
 		Matrix V(size);		
 		Matrix T(size); //матрица поворота
 		Matrix Tt(size);
 		V = (*this); //теперь ЭТО наша исходная матрица
-		T.Kroneker();//матрица поворота должна быть похожа на единичную
-		double sum = 0; //нужная сумма квадрата внедиагональных элементов
-		double max = 0; //нужный максимальный внедиагональный элемент
+		double Control = 0; //нужная сумма квадрата внедиагональных элементов
+		double max; //нужный максимальный внедиагональный элемент
 		int k=0, l=0; //это нужные нам индексы cos and sin
 		double p = 0, fi = 0; //нужный угол поворота
 		double c = 0, s = 0; //cos and sin
-		sum = (*this).SumSquarNotDiagEl(); //ищем нужную нам сумму
-		int ch = 1;
-		while (sum>eps){
-			cout << "Мы зашли в цикл" << endl;
-			cout << "Итерация №" << ch << endl;
+		int ch = 0;
+		//Итерационный процесс
+		Control = V.MaxEl(); //ищем нужную нам сумму
+		while (abs(Control)>eps){
+			max = 0;
+			T.Kroneker();//матрица поворота должна быть похожа на единичную
 			//ищем нужный максимальный внедиагональный элемент
 			for (int i = 0; i<size; i++)
 				for (int j = 0; j < size; j++)
 					if (i != j && j>i && V[i][j] > max){
 						max = V[i][j];
-						V.k = i; V.l = j;//нахожим индексы
+						k = i; l = j;//находим индексы
 					}
-			if (V[k][k] - V[l][l] == 0) {
+			cout << "max=V[" << k + 1 << "][" << l + 1 << "];" << endl;
+			T.k = k; T.l = l; //Сохраняем найденные индексы в матрице поворота
+			if (V[k][k] - V[l][l] == 0) {//если тангенса нет => угол равен 45
 				fi = 0.78539816339;
 				c = cos(fi); //косинус фи
 				s = sin(fi);	//синус фи
@@ -232,20 +261,25 @@ public:
 				c = cos(fi); //косинус фи
 				s = sin(fi);	//синус фи
 			}
+			cout << "fi=" << fi << endl;
 			//определяем матрицу поворота
 			T.A[k][k] = c;
-			T.A[k][l] = -s;
+			T.A[k][l] = s*(-1);
 			T.A[l][k] = s;
 			T.A[l][l] = c;
-			T.turn = true;
-			//перемножение матриц
-			cout << "\ndo" << endl;
-			V.showData();
-			V = Tt*V*T;
-			cout << "\nposle" << endl;
-			V.showData();
-			sum = V.SumSquarNotDiagEl();
-			break;
+			T.turn = true; //помечаем матрицу поворота
+			Tt = T.Trans(size); //транспанируем матрицу поворота			
+			V = Tt*V*T; //перемножение матриц
+			cout << "\nT" << ch << endl; T.showData();
+			cout << "\nV" << ch << endl; V.showData();
+			Control = V.MaxEl();
+			cout << "\nmax el=" << Control << endl;
+			cout << "\nControl: " << Control - eps << endl;
+			if (abs(Control) < eps)
+				cout << "\nyes" << endl;
+			else cout << "\nno" << endl;
+			//if (ch == 5) break;
+			ch++;
 		}
 		return V;
 	}
@@ -450,7 +484,8 @@ int main()
 	Matrix V(size);
 
 	//Algorithm
-	A = A.Symmetric(gamma);	//create a symmetric matrix
+	//A = A.Symmetric(gamma);	//create a symmetric matrix
+	A.CreateMatrix();
 	cout << "\nA:" << endl; A.showData();
 	V = A.Jacoby();
 	cout << "\nV:" << endl; V.showData();
