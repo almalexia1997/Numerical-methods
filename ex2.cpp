@@ -11,6 +11,11 @@ class Matrix {
 private:
 	int size;//переменная для размера матрицы
 	double **A; //здесь храниться матрица
+	//Следующие поля для матрицы поворота
+	int k = 0; 
+	int l = 0;
+	bool transpan = false;
+	bool turn = false;
 public:
 	//конструктор матрицы
 	Matrix(int size) : size(size)
@@ -40,9 +45,9 @@ public:
 	{
 		Matrix result(size); //создали матрицу result
 		for (int k = 0; k<size; k++) //перемещаемся по строкам матрицы result
-		for (int i = 0; i<size; i++) //перемещаемся по столбцам матрицы result
-		for (int j = 0; j<size; j++) //индекс который меняется при умножении
-			result.A[k][i] = result.A[k][i] + A[k][j] * B.A[j][i];
+			for (int i = 0; i<size; i++) //перемещаемся по столбцам матрицы result
+				for (int j = 0; j<size; j++) //индекс который меняется при умножении
+					result.A[k][i] = result.A[k][i] + A[k][j] * B.A[j][i];
 		return result;
 	}
 	//сложение матриц
@@ -50,8 +55,8 @@ public:
 	{
 		Matrix result(size);
 		for (int i = 0; i<size; i++)
-		for (int j = 0; j<size; j++)
-			result.A[i][j] = A[i][j] + B.A[i][j];
+			for (int j = 0; j<size; j++)
+				result.A[i][j] = A[i][j] + B.A[i][j];
 		return result;
 	}
 	//вычитание матриц
@@ -59,31 +64,34 @@ public:
 	{
 		Matrix result(size);
 		for (int i = 0; i<size; i++)
-		for (int j = 0; j<size; j++)
-			result.A[i][j] = A[i][j] - B.A[i][j];
+			for (int j = 0; j<size; j++)
+				result.A[i][j] = A[i][j] - B.A[i][j];
 		return result;
 	}
 	//целочисленное деление матрицы на число
 	void DivInNumber(int k)
 	{
 		for (int i = 0; i<size; i++)
-		for (int j = 0; j<size; j++)
-			A[i][j] = ceil(A[i][j] / (k));
+			for (int j = 0; j<size; j++)
+				A[i][j] = ceil(A[i][j] / (k*k));
 	}
 	//умножение матрицы на число
 	void MulInNumber(int k)
 	{
 		for (int i = 0; i<size; i++)
-		for (int j = 0; j<size; j++)
-			A[i][j] = A[i][j] * k;
+			for (int j = 0; j<size; j++)
+				A[i][j] = A[i][j] * k;
 	}
 	//транспонированние матрицы
 	Matrix Trans(int size)
 	{
 		Matrix B(size);
 		for (int i = 0; i<size; i++)
-		for (int j = 0; j < size; j++)
-			B[i][j] = A[j][i];
+			for (int j = 0; j < size; j++)
+				B[i][j] = A[j][i];
+		B.transpan = true;
+		B.turn = (*this).turn;
+		B.k = (*this).k; B.l = (*this).l;
 		return B;
 	}
 	//вывод данных массива на экран
@@ -110,7 +118,9 @@ public:
 		for (int i = 0; i < size; i++)
 		{
 			for (int j = 0; j < size; j++)
+			{
 				(*this).A[i][j] = rand() % 10; // Каждый элемент случайному числу от 0 до 9
+			}
 		}
 	}
 	//создать единичную матрицу
@@ -148,64 +158,94 @@ public:
 		return A;
 	}
 
-	Matrix Povorot(Matrix A) {
-		int i=0, j=0;
-		double max = 0;
-		Matrix T(size); //матрица поворота
-		T.Kroneker(); //придаем всем элементам значения как в единичной
-		for (int k = 0; k<size; ++k)
-			for (int l = 0; l<size; ++l)
-				if (k != l && abs(A[k][l])>=max){ //ищем индексы i и j
-					max = A[k][l];
-					i = k; j = l;
+	Matrix operator *(Matrix B)
+	{
+		Matrix result(size); //создали матрицу result
+		for (int f = 0; f < size; f++) //перемещаемся по строкам матрицы result
+		{
+			for (int i = 0; i < size; i++) //перемещаемся по столбцам матрицы result
+				for (int j = 0; j < size; j++)//индекс который меняется при умножении
+				{
+					if (B.transpan == false && B.turn == true)//Если у нас умножение вида: A*T
+					{
+						if (i != B.k && i != B.l) //копируем нужные столбцы
+							result.A[f][i] = (*this).A[f][i];
+						else //а все остальное умножаем как обычно
+							result.A[f][i] = result.A[f][i] + A[f][j] * B.A[j][i];
+					}
+					else if ((*this).transpan == true && (*this).turn == true)//Если у нас умножение вида: Tt*A
+					{
+						if (f != (*this).k && f != (*this).l) //копируем нужные строки
+							result.A[f][i] = B.A[f][i];
+						else //а все остальное умножаем как обычно
+							result.A[f][i] = result.A[f][i] + A[f][j] * B.A[j][i];
+					}
+					else //Если у нас умножение не на матрицу поворота, то умножаем как обычно
+						result.A[f][i] = result.A[f][i] + A[f][j] * B.A[j][i];
 				}
-		cout << "\ni=" << i << "\nj=" << j << endl;
-		double p = 2.0 * A[i][j] / (A[i][i] - A[j][j]);
-		double sgnp;
-		(p>0) ? sgnp = 1 : sgnp = -1;
-		double fi = 0.5*atan(p); //находим угол фи
-		double c = sqrt(0.5 * (1.0 + (1.0/sqrt(1.0+p*p)))); //косинус фи
-		double s = sgnp*sqrt(0.5 * (1.0 - (1.0 / sqrt(1.0 + p*p))));	//синус фи
-		//определяем матрицу поворота
-		T.A[i][i] = c; 
-		T.A[i][j] = -s;
-		T.A[j][i] = s;
-		T.A[j][j] = c;
-		cout << "\nT:" << endl; T.showData();
-		return T; //возвращаем матрицу поворота
+
+		}
+		return result;
 	}
 
-	Matrix Jacoby(Matrix A){
-		Matrix B(size); //матрица промежуточного умножения
-		Matrix V(size);
-		V = A;
-		Matrix T(size); //матрица поворота
-		Matrix Tt(size);//транспонированная к ней матрица
-		double sled1 = 0;//след исходной матрицы
-		double sled2 = 0;//след результата
-		/*double max = 0;
+		
+	//нужная сумма квадрата внедиагональных элементов
+	double SumSquarNotDiagEl(){
+		double sum = 0;
 		for (int i = 0; i<size; i++)
 			for (int j = 0; j < size; j++)
-				if (i != j && abs(V[i][j]) >= max)
-					max = abs(V[i][j]);*/
-		int ch = 0;
-		for (int i = 0; i < size; ++i)
-			sled1 += A[i][i]; //определеяем след исходной матрицы
-		while (abs(sled1-sled2)>eps){
-			T = V.Povorot(V);//определяем матрицу поворота
-			Tt = T.Trans(size);//определяем транспонированную к ней матрицу
-			B = Tt.MultMatrix(V);//находим T*A
-			V = B.MultMatrix(T); //находим T*AT и находим 
-			sled2 = 0;
-			for (int i = 0; i < size; ++i)
-				sled2 += V[i][i];
-			cout << "iteration #"<<ch<<"   sled1=" << sled1 << "    sled2=" << sled2 << endl; cout << "sled1-sled2=" << abs(sled1 - sled2)<<endl;
-			double max = 0;		
+				if (i != j)
+					sum += (*this)[i][j] * (*this)[i][j];
+		return sum;
+	}
+	Matrix Jacoby(){
+		Matrix V(size);		
+		Matrix T(size); //матрица поворота
+		Matrix Tt(size);
+		V = (*this); //теперь ЭТО наша исходная матрица
+		T.Kroneker();//матрица поворота должна быть похожа на единичную
+		double sum = 0; //нужная сумма квадрата внедиагональных элементов
+		double max = 0; //нужный максимальный внедиагональный элемент
+		int k=0, l=0; //это нужные нам индексы cos and sin
+		double p = 0, fi = 0; //нужный угол поворота
+		double c = 0, s = 0; //cos and sin
+		sum = (*this).SumSquarNotDiagEl(); //ищем нужную нам сумму
+		int ch = 1;
+		while (sum>eps){
+			cout << "Мы зашли в цикл" << endl;
+			cout << "Итерация №" << ch << endl;
+			//ищем нужный максимальный внедиагональный элемент
 			for (int i = 0; i<size; i++)
 				for (int j = 0; j < size; j++)
-					if (i != j && i<j && abs(V[i][j]) >= max)
-						max = abs(V[i][j]);
-			ch++;
+					if (i != j && j>i && V[i][j] > max){
+						max = V[i][j];
+						V.k = i; V.l = j;//нахожим индексы
+					}
+			if (V[k][k] - V[l][l] == 0) {
+				fi = 0.78539816339;
+				c = cos(fi); //косинус фи
+				s = sin(fi);	//синус фи
+			}
+			else {
+				p = 2.0 * V[k][l] / (V[k][k] - V[l][l]);//временная переменная из формулы
+				fi = 0.5*atan(p); //находим угол фи
+				c = cos(fi); //косинус фи
+				s = sin(fi);	//синус фи
+			}
+			//определяем матрицу поворота
+			T.A[k][k] = c;
+			T.A[k][l] = -s;
+			T.A[l][k] = s;
+			T.A[l][l] = c;
+			T.turn = true;
+			//перемножение матриц
+			cout << "\ndo" << endl;
+			V.showData();
+			V = Tt*V*T;
+			cout << "\nposle" << endl;
+			V.showData();
+			sum = V.SumSquarNotDiagEl();
+			break;
 		}
 		return V;
 	}
@@ -359,27 +399,6 @@ public:
 				sum2 += S[i][k] * x[k];
 			x[i] = (y[i] - sum2) / S[i][i];
 		}
-
-		//ПРОВЕРКА РАЗЛОЖЕНИЯ ХАЛЕЦКОГО
-		/*Matrix St(size);//transposed matrix decomposition
-		Matrix T(size);
-		Matrix R(size);
-		St = S.Trans(size); //create transposed matrix decomposition
-		cout << "\nS" << endl;
-		S.showData();
-		cout << "\nSt" << endl;
-		St.showData();
-		T = St.MultMatrix(D);
-		R = T.MultMatrix(S);
-		cout << "\nSt*D*S" << endl;
-		R.showData();
-
-		//ВЫВОД ВСЕЙ СИСТЕМЫ НА ЭКРАН
-		cout << "\nMatrix A:" << endl;
-		A.showData();
-		cout << "\nVector b" << endl;
-		(*this).ShowData();*/
-
 		cout << "\nVector x" << endl;
 		x.ShowData(); cout << endl;
 		return x;
@@ -389,12 +408,6 @@ public:
 	{
 		Vector Result(size);
 		Result = (*this).MultMatrixInVector(A);
-		/*cout << "\nПроверка: подставляем найденный вектор в СЛАУ и\nсравниваем результат с вектором свободных членов" << endl;
-		cout << "\nResult:" << endl;
-		Result.ShowData();
-		cout << "\nVector b" << endl;
-		b.ShowData();
-		cout << endl;*/
 		int flag[1] = { 0 };
 		for (int i = 0; i<size; ++i)
 		{
@@ -439,7 +452,7 @@ int main()
 	//Algorithm
 	A = A.Symmetric(gamma);	//create a symmetric matrix
 	cout << "\nA:" << endl; A.showData();
-	V = A.Jacoby(A);
+	V = A.Jacoby();
 	cout << "\nV:" << endl; V.showData();
 	return 0;
 };
