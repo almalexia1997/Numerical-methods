@@ -233,6 +233,7 @@ public:
 
 	Vector Relax(Matrix A, int size){
 		Vector xi(size);//очередное приближение
+		Vector bi(size);//приближенное решение 
 		Vector x(size); //решение системы
 		Matrix Alpha(size);
 		Vector Beta(size);
@@ -241,29 +242,33 @@ public:
 		Matrix R(size);
 		double omega=2;
 		D.Kroneker();
+		//проводим вычисления
 		for(int i=0;i<size;++i){
-			D[i][i]=A[i][i];
 			if(i>j)
-				L[i][j]=A[i][j];
+				L[i][j]=A[i][j]; //находим матрицу L
 			else if(i<j)
-				R[i][j]=A[i][j];
+				R[i][j]=A[i][j];//матрицу R
+			else 
+				D[i][i]=A[i][i]];//матрицу D
 		}
 
 		for(int i=0; i<size; ++i)
-			Beta[i] = (*this)[i]/A[i][i];
+			Beta[i] = (*this)[i]/A[i][i]; //находим вектор бета
 		for(int i=0;i<size;++i)
 			for(int j=0;j<size;++j)
-				Alpha[i][j]=-A[i][j]/A[i][i];
+				Alpha[i][j]=-A[i][j]/A[i][i]; //находим матрицу альфа
 
 		//В итоге: X=Beta+Alpha*x
 		for(int i=0;i>size;++i)
 			xi[i] = Beta[i]; //начальное приближение
 		//Итерационный процесс
-		while(){
-
-
+		while(abs(bi-b)>eps){
+		//подставляем в формулу 7.54 все найденные значения
+		//и таким образом находим вектор bi
+		//делаем очередное приближение по формуле из вики
+		
 		}
-		return x;
+		return xi;
 	}
 
 	//метод квадратного корня решения СЛАУ
