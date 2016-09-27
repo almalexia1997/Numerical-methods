@@ -33,22 +33,23 @@ void MetRK(double y[m], double x, double xN, double h, double eps)
 	cout<<setw(10)<<"x"<<setw(10)<<"y[0]"<<setw(10) //заголовки таблицы
 	<<"y[1]"<<setw(10)<<"ut"<<setw(10)<< "h"<<setw(10)<<"el"<<endl;
 	cout<<setw(10)<<setprecision(4)<<x<<setw(10)<<y[0]<<setw(10)<<y[1]<<setw(10)<<ut(x)<<setw(10)<< h<<endl;
-	for(;;)
+	for(int i=0;i<5;++i)
 	{
 		if(x>=xN)
 			break;
 		FormRK(y, x, h, y);
 		x += h;
-		el = abs(y[0]-ut(x)); //погрещность y[0] решения на шаге
+		el = fabs(y[0]-ut(x)); //погрещность y[0] решения на шаге
 		cout<<setw(10)<<setprecision(4)<<x<<setw(10)<<y[0]<<setw(10)<<y[1]<<setw(10)<<ut(x)<<setw(10)<<h<<setw(10)<<el<<endl;
 	}
-	cout<<fixed<<"eps="<<eps<<endl;
-	cout<<fixed<<" h="<<h<<endl;
+	cout<<fixed<<"\n \t eps="<<eps<<endl;
+	cout<<fixed<<" \t h="<<h<<endl;
 }
 
 int main() {
-	int N=11; //количество шагов
-	double x0 = 0 ,xN = 1, h=1/(N-1); // начальные значения и шаг
+	int N=11.; //количество шагов
+	double x0 = 0 ,xN = 1, h=1./(N -1.); // начальные значения и шаг
+	cout<<"h="<<h<<endl;
 	double eps = h; //погрешность
 	double y0[m]={-1,1,-2,0}; //значения начальных условий
 	MetRK(y0, x0, xN, h, eps); // получение решения
