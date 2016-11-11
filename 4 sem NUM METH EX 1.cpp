@@ -5,18 +5,16 @@
 
 using namespace std;
 
-const double eps = 1e-12;
+const double eps = 1e-10;
 
 class Matrix {
-
 private:
 	int size;//переменная для размера матрицы
 	double **A; //здесь храниться матрица
 public:
-
-	Matrix(int size) : size(size) //конструктор матрицы
+	//конструктор матрицы
+	Matrix(int size) : size(size) 
 	{
-		//создаем матрицу
 		A = new double *[size];
 		for (int i = 0; i < size; ++i)
 		{
@@ -25,7 +23,19 @@ public:
 				A[i][j] = 0;
 		}
 	}
-
+	//конструктор копирования
+	Matrix(const Matrix &B)
+	{
+		size = B.size;
+		A = new double *[size];
+		for (int i = 0; i < size; ++i)
+		{
+			A[i] = new double[size];
+			for (int j = 0; j < size; ++j)
+				A[i][j] = B.A[i][j];
+		}
+	}
+	//умножение матриц
 	Matrix MultMatrix(Matrix B)
 	{
 		Matrix result(size); //создали матрицу result
@@ -34,9 +44,9 @@ public:
 		for (int j = 0; j<size; j++) //индекс который меняется при умножении
 			result.A[k][i] = result.A[k][i] + A[k][j] * B.A[j][i];
 		return result;
-	} //умножение матриц
-
-	Matrix SumMatrix(Matrix B) //сложение матриц
+	} 
+	//сложение матриц
+	Matrix SumMatrix(Matrix B) 
 	{
 		Matrix result(size);
 		for (int i = 0; i<size; i++)
@@ -44,7 +54,7 @@ public:
 			result.A[i][j] = A[i][j] + B.A[i][j];
 		return result;
 	}
-
+	//вычитание матриц
 	Matrix SubMatrix(Matrix B)
 	{
 		Matrix result(size);
@@ -52,26 +62,31 @@ public:
 		for (int j = 0; j<size; j++)
 			result.A[i][j] = A[i][j] - B.A[i][j];
 		return result;
-	} //вычитание матриц
-
+	} 
+	//целочисленное деление матрицы на число
 	void DivInNumber(int k)
 	{
 		for (int i = 0; i<size; i++)
 		for (int j = 0; j<size; j++)
-			A[i][j] = ceil(A[i][j] / (k*k));
+			A[i][j] = ceil(A[i][j] / (k));
 	}
-
+	//умножение матрицы на число
+	void MulInNumber(int k)
+	{
+		for (int i = 0; i<size; i++)
+		for (int j = 0; j<size; j++)
+			A[i][j] = A[i][j] * k;
+	}
+	//транспонированние матрицы
 	Matrix Trans(int size)
 	{
 		Matrix B(size);
 		for (int i = 0; i<size; i++)
 		for (int j = 0; j < size; j++)
-		{
 			B[i][j] = A[j][i];
-		}
 		return B;
-	} //транспонированная матрица
-
+	} 
+	//вывод данных массива на экран
 	void showData()
 	{
 		cout << endl;
@@ -81,13 +96,13 @@ public:
 				cout << A[i][j] << " ";
 			cout << endl;
 		}
-	} //вывод данных массива на экран
-
+	} 
+	//возвратить элемент матрицы
 	double ReturnElementMatrix(int i, int j)
 	{
 		return A[i][j];
 	}
-
+	//создать рандомную матрицу
 	void Random()
 	{
 		srand(time(NULL)); // Инициализируем генератор случайных чисел.
@@ -95,12 +110,10 @@ public:
 		for (int i = 0; i < size; i++)
 		{
 			for (int j = 0; j < size; j++)
-			{
 				(*this).A[i][j] = rand() % 10; // Каждый элемент случайному числу от 0 до 9
-			}
 		}
 	}
-
+	//создать единичную матрицу
 	void Kroneker()
 	{
 		for (int i = 0; i < size; i++)
@@ -114,41 +127,50 @@ public:
 			}
 		}
 	}
-
-	double *operator [](int i) //взять элемент матрицы
+	//взять элемент матрицы
+	double *operator [](int i) 
 	{
 		return A[i];
+	}	
+	//Создать симметричную матрицу
+	Matrix Symmetric(int gamma)
+	{
+		Matrix A(size);
+		Matrix At(size);		
+		Matrix R(size);
+		Matrix E(size);		
+		(*this).Random(); 
+		At = (*this).Trans(size);
+		R = At.MultMatrix((*this));
+		E.Kroneker();
+		E.MulInNumber(gamma);
+		A = R.SumMatrix(E);
+		return A;
 	}
 
-	Matrix(const Matrix &B) //перегрузка оператора присваивания
-	{
-		size = B.size;
-		A = new double *[size];
-		for (int i = 0; i < size; ++i)
-		{
-			A[i] = new double[size];
-			for (int j = 0; j < size; ++j)
-				A[i][j] = B.A[i][j];
-		}
-	}
 };
 
-class Vector
-{
+class Vector {
 private:
 	int size;
 	double *V;
 public:
+	//конструктор вектора
 	Vector(int size) : size(size)
 	{
 		size = size;
 		V = new double[size];
 		for (int i = 0; i < size; i++)
-		{
 			V[i] = 0;
-		}
 	}
-
+	//конструктор копирования
+	Vector(const Vector &B) : size(B.size) 
+	{
+		V = new double[size];
+		for (int i = 0; i < size; i++)
+			V[i] = B.V[i];
+	}
+	//умножение матрицы на вектор
 	Vector MultMatrixInVector(Matrix A)
 	{
 		Vector result(size); //создали vector result
@@ -156,21 +178,19 @@ public:
 		for (int j = 0; j<size; j++) //индекс который меняется при умножении
 			result.V[i] = result.V[i] + A.ReturnElementMatrix(i, j) * V[j];
 		return result;
-	} //умножение матрицы на вектор
-	double &operator[](int j) //перегрузка []
+	}
+	//взять элемент вектора
+	double &operator[](int j) 
 	{
 		return V[j];
 	}
-
-	Vector(const Vector &B) : size(B.size) {
-		V = new double[size];
-		for (int i = 0; i < size; i++) V[i] = B.V[i];
-	}
+	//вывод данных вектора на экран
 	void ShowData()
 	{
 		for (int i = 0; i<size; ++i)
 			cout << V[i] << "\n";
 	}
+	//создать рандомный вектор
 	void Random()
 	{
 		srand(time(NULL)); // Инициализируем генератор случайных чисел.
@@ -178,143 +198,187 @@ public:
 		for (int i = 0; i < size; i++)
 			(*this).V[i] = rand() % 10; // Каждый элемент случайному числу от 0 до 9
 	}
+	
+	//создать вектор b
+	void Create(Matrix A)
+	{ 
+		int ch = 0;
+		int k;
+		cout << "\nКак хотите создать вектор свободных членов?\nВедите 1 чтобы создать рандомный.\nВведите 2 чтобы создать из любого столбца матрицы А\n";
+		cout << "Ваш выбор: "; cin >> ch;
+		if (ch == 1)
+			(*this).Random();
+		else if (ch == 2)
+		{
+			//(*this).Create(A);
+			cout << "Какой стоблец матрицы выбрать для создания вектора свободных членов?" << endl;
+			cout << "Введите номер столбца: "; cin >> k;
+			if (k <= 0 || k>size)
+			{
+				cout << "ERROR!\nСтолбец может быть только положительным и/или не превышать размерность матрицы!" << endl;
+				cout << "По умолчанию создан рандомный вектор." << endl;
+				(*this).Random();
+			}
+			else
+			for (int i = 0; i < size; i++)
+				(*this)[i] = A.ReturnElementMatrix(i, k - 1);
+		}
+		else
+		{
+			cout << "Введено число, отличное от 1 и 2.\nПо умолчанию создан рандомный вектор." << endl;
+			(*this).Random();
+		}		
+	}
+
+	//метод квадратного корня решения СЛАУ
+	Vector SquareRootMethod(Matrix A, int size)
+	{
+		//ПРЯМОЙ ХОД
+
+		Matrix D(size);
+		Matrix S(size);
+		//cout << "\nF O R W A R D: " << endl;
+		double sum1 = 0;
+		double sum2 = 0;
+		(A[0][0]>0) ? D[0][0] = 1 : D[0][0] = -1; //1
+		S[0][0] = sqrt(abs(A[0][0]));
+		for (int j = 1; j < size; ++j)
+			S[0][j] = A[0][j] / (S[0][0] * D[0][0]);
+		for (int i = 1; i<size; ++i)
+		{
+			for (int j = 0; j<size; ++j)
+			{
+				if (i == j)
+				{
+					sum1 = 0;
+					for (int k = 0; k<i; ++k)
+					{
+						if (k == 0) 
+							sum1 = 0;
+						sum1 += D[k][k] * abs(S[k][i]) * abs(S[k][i]);
+					}
+					((A[i][i] - sum1)>0) ? D[i][i] = 1 : D[i][i] = -1; //2
+					S[i][i] = sqrt(abs(A[i][i] - sum1));
+				}
+				else if (i + 1 <= j)
+				{
+					sum2 = 0;
+					for (int k = 0; k<i; ++k)
+						sum2 += D[k][k] * S[k][i] * S[k][j];
+					S[i][j] = (A[i][j] - sum2) / (S[i][i] * D[i][i]);
+				}
+				else
+					S[i][j] = 0;
+				sum1 = 0;
+				sum2 = 0;
+			}
+		}		
+
+		//ОБРАТНЫЙ ХОД
+
+		Vector x(size);
+		//cout << "\nR E V E R S E: " << endl;
+		sum1 = 0;
+		sum2 = 0;
+		Vector y(size);
+		y[0] = (*this)[0] / (S[0][0] * D[0][0]);
+		for (int i = 1; i<size; ++i)
+		{
+			sum1 = 0;
+			for (int k = 0; k<i; ++k)
+				sum1 += D[k][k] * S[k][i] * y[k];
+			y[i] = ((*this)[i] - sum1) / (S[i][i] * D[i][i]);
+		}
+		x[size - 1] = y[size - 1] / S[size - 1][size - 1];
+		for (int i = size - 2; i >= 0; --i)
+		{
+			sum2 = 0;
+			for (int k = i + 1; k<size; ++k)
+				sum2 += S[i][k] * x[k];
+			x[i] = (y[i] - sum2) / S[i][i];
+		}
+
+		//ПРОВЕРКА РАЗЛОЖЕНИЯ ХАЛЕЦКОГО
+		/*Matrix St(size);//transposed matrix decomposition
+		Matrix T(size);
+		Matrix R(size);
+		St = S.Trans(size); //create transposed matrix decomposition
+		cout << "\nS" << endl;
+		S.showData();
+		cout << "\nSt" << endl;
+		St.showData();
+		T = St.MultMatrix(D);
+		R = T.MultMatrix(S);
+		cout << "\nSt*D*S" << endl;
+		R.showData();		
+
+		//ВЫВОД ВСЕЙ СИСТЕМЫ НА ЭКРАН
+		cout << "\nMatrix A:" << endl;
+		A.showData();
+		cout << "\nVector b" << endl;
+		(*this).ShowData();*/
+
+		cout << "\nVector x" << endl;
+		x.ShowData(); cout << endl;
+		return x;
+	}
+
+	void Check(Matrix A, Vector b, int size) 
+	{
+		Vector Result(size);
+		Result = (*this).MultMatrixInVector(A);
+		/*cout << "\nПроверка: подставляем найденный вектор в СЛАУ и\nсравниваем результат с вектором свободных членов" << endl;
+		cout << "\nResult:" << endl;
+		Result.ShowData();
+		cout << "\nVector b" << endl;
+		b.ShowData();
+		cout << endl;*/
+		int flag[1] = { 0 };
+		for (int i = 0; i<size; ++i)
+		{
+			if (abs(Result[i] - b[i])>eps)
+			{
+				flag[0] = 1; 
+				cout << "Погрешность:" << " " << abs(Result[i] - b[i]) << endl;
+			}
+			else
+				cout << "Погрешность:" << " " << abs(Result[i] - b[i]) << endl;
+		}
+		if (flag[0] != 0)
+			cout << "\nВывод: NO" << endl;
+		else
+			cout << "\nВывод: OK" << endl;
+	}
 };
 
 
-//======================================================================================================================
-
-Matrix Forward(Matrix A, Matrix D, int size)
-{
-	Matrix S(size);
-	cout << "\nForward loading..." << endl;
-	double sum1 = 0;
-	double sum2 = 0;
-	S[0][0] = sqrt(abs(A[0][0]));//+
-	(S[0][0] > 0) ? D[0][0] = 1 : D[0][0] = -1;//D
-	for (int j = 1; j<size; ++j)
-		S[0][j] = A[0][j] / S[0][0]; //+
-	for (int i = 1; i<size; ++i)
-	{
-		for (int j = 0; j<size; ++j)
-		{
-			if (i == j)
-			{
-				sum1 = 0;
-				for (int k = 0; k < i; ++k)
-					sum1 += D[k][k] * S[k][i] * S[k][i];
-				(A[i][i] - sum1>0) ? D[i][i] = 1 : D[i][i] = -1;//D
-				S[i][i] = sqrt(abs(A[i][i] - sum1));
-			}
-			else if (i<j)
-			{
-				sum2 = 0;
-				for (int k = 0; k<i; ++k)
-					sum2 += D[k][k]*S[k][i] * S[k][j];
-				S[i][j] = (A[i][j] - sum2) / (S[i][i]*D[i][i]);
-			}
-			else
-				S[i][j] = 0;
-			sum1 = 0;
-			sum2 = 0;
-		}
-	}
-	return S;
-}
-Vector Reverse(Vector b, Matrix S, Matrix D, int size)
-{
-	Vector x(size);
-	cout << "\nReverse loading..." << endl;
-	double sum1 = 0;
-	double sum2 = 0;
-	Vector y(size);
-	y[0] = b[0] / (S[0][0]*D[0][0]);
-	for (int i = 1; i<size; ++i)
-	{
-		sum1 = 0;
-		for (int k = 0; k<i; ++k)
-			sum1 = sum1 + S[k][i] * y[k];
-		y[i] = (b[i] - sum1) / (S[i][i]);
-	}
-	x[size - 1] = y[size - 1] / S[size - 1][size - 1];
-	for (int i = size - 2; i >= 0; --i)
-	{
-		sum2 = 0;
-		for (int k = i + 1; k<size; ++k)
-			sum2 = sum2 + S[i][k] * x[k];
-		x[i] = (y[i] - sum2) / S[i][i];
-	}
-	return x;
-}
-
-bool Check(Matrix A, Vector x, Vector b, int size) {
-	Vector Result(size);
-	Result = x.MultMatrixInVector(A);
-	cout << "\n++++++++++++++++++++" << endl;
-	cout << "\nResult:" << endl;
-	Result.ShowData();
-	cout << "\nVector b" << endl;
-	b.ShowData();
-	int flag[1] = { 0 };
-	for (int i = 0; i<size; ++i)
-	{
-		if (abs(Result[i] - b[i])>eps)
-		{
-			flag[0]=1; cout << "Pogreshnost***" << " " << abs(Result[i] - b[i]) << endl;
-		}
-		else
-			cout << "Pogreshnost***" << " " << abs(Result[i] - b[i]) << endl;
-	}
-	if (flag[0] != 0)
-		return false;
-	else
-		return true;
-}
 int main()
 {
-	cout << "eps = "<< eps << "\n" << endl;
-	int size;
-	cout << "size="; cin >> size;
-	Matrix A(size); //matrix coefficients
-	A.Random(); //random elements
-	//A.showData();
-	Matrix At(size);
-	At=A.Trans(size); //transpose matrix
-	//At.showData();
+	setlocale(LC_ALL, "Russian");
+	cout << "Привет Мир!\nЭто реализация метода квадратного корня решения СЛАУ" << endl;
 
-	//create a symmetric matrix
-	Matrix A2(size);
-	A2 = A.MultMatrix(At);
-	A2.DivInNumber(size);
+	//Enter dates
+	int size;
+	int gamma;
+	cout << "Заказанная точность: " << eps << "\n" << endl;
+	cout << "Матрица создается рандомно.\nВведите размер матрицы: "; cin >> size;
+	if (size <= 0)
+	{ 
+		cout << "ERROR!\nРазмер должен быть только положительным." << endl; 
+		return 0; 
+	}
+	cout << "Формула для создания симметричной матрицы:\nC*C + gE, где g - любое число, E - единичная матрица,\nC - любая матрица, C* - транспанированная к ней матрица.\n " << endl;
+	cout << "Введите g="; cin >> gamma;
+
+	//Determined matrix
+	Matrix A(size); //matrix coefficients
+	Vector b(size);//We create a vector of free terms
+	Vector x(size); //We create an unknown vector
 	
-	//We create a vector of free terms
-	Vector b(size);
-	b.Random();
-	
-	//First part
-	Matrix S(size); //matrix decomposition
-	Matrix St(size);//transposed matrix decomposition
-	Matrix D(size);
-	S=Forward(A2,D,size); //create matrix decomposition
-	St=S.Trans(size); //create transposed matrix decomposition
-	cout << "\nS" << endl;
-	S.showData();
-	cout << "\nSt" << endl;
-	St.showData();
-	Matrix R(size);
-	R = St.MultMatrix(S);
-	cout << "\nMatrix A:" << endl;
-	A2.showData(); //symmetric matrix
-	cout << "\nSt*S" << endl;
-	R.showData();
-	
-	//Second part
-	Vector x(size); //unknown vector
-	x=Reverse(b, S, D, size);
-	cout << "\nVector x" << endl;
-	x.ShowData();
-	if (Check(A2, x, b, size))
-		cout << "Vivod: OK" << endl;
-	else
-		cout << "Vivod: NO" << endl;
+	//Algorithm
+	A = A.Symmetric(gamma);	//create a symmetric matrix	
+	b.Create(A); //Create vector b;
+	x = b.SquareRootMethod(A, size); //Square root method for solving linear algebraic equation		
+	x.Check(A,b,size);//Check that the algorithm
 	return 0;
 };
