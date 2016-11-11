@@ -11,7 +11,7 @@ mysql_select_db("student");
 $field = isset($_GET['field'])? $_GET['field'] : '';
 $sort = isset($_GET['sort'])? $_GET['sort'] : 'asc';
 $page = isset($_GET['page'])? $_GET['page']-1 : 0;
-
+$ident = isset($_GET['ident'])? $_GET['ident'] : '';
 
 //Создаем основной запрос в БД
 $q = "SELECT TableRus.id, TableRus.datet,TableRus.had, AvtorRus.fio, RubricaRus.NameRubric,TableRus.anons,TableRus.body FROM TableRus INNER JOIN AvtorRus ON(TableRus.avtor = AvtorRus.id) INNER JOIN RubricaRus ON(TableRus.rubric = RubricaRus.id) ";
@@ -41,11 +41,12 @@ for($i=1;$i<=$num_pages;$i++) {
     echo '<a href="'.$_SERVER['PHP_SELF'].'?page='.$i.$fs.'">'.$i."</a> ";
   }
 }
+$q .= " LIMIT $start,$per_page";
 
 //===================================================ТАБЛИЦА=====================================================
 
 //Открываем таблицу
-$q .= " LIMIT $start,$per_page";
+
 $result = mysql_query($q) or die('Запрос не удался: ' . mysql_error());;
 echo '<table border="5" width="1900">';
 
@@ -62,7 +63,14 @@ echo '</tr>';
 while ($line = mysql_fetch_array($result, MYSQL_ASSOC)) {
   echo "\t<tr>\n";
   foreach ($line as $col_value) {
-    echo "<td>$col_value</td>\n";
+    //if(isset($id)==TRUE){
+      //$sql=mysql_query("SELECT TableRus.id FROM TableRus WHERE TableRus.id = $ident");
+      //$r=mysql_fetch_array($sql);
+      //echo "$r";
+    //}
+    //else {
+      echo "<td>$col_value</td>\n";
+    //}
   }
   echo "</tr>\n";
 }
