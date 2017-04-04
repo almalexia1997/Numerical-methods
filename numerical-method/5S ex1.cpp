@@ -1,4 +1,4 @@
-//Зад.№15: мет.Эйлера
+//Зад.№15: мет.Рунге-Кутты 1 порядка
 #include <cmath>
 #include <iostream>
 #include<iomanip>
