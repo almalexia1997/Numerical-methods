@@ -1,12 +1,11 @@
-//Краевая задача.метод дихотомии с пристрелкой.
-#include <cmath>
+//Метод Дихотомии с пристрелкой
 #include <iostream>
 #include<iomanip>
-
+#include <cmath>
 using namespace std;
+const double eps = 0.001;
 
-const double eps = 0.001;  //??   взял поточнее...
-const int m = 3, p = 2; //m=4,p=1;  ??       число ур. и поряд.метода
+const int m = 3, p = 2; //    число ур. и поряд.метода
 
 //================================================
 
@@ -46,7 +45,7 @@ void FormRK2(double y0[], double x, double h, double y[]){
 	}
 }
 
-void shag(double y[m], double x, double &h, double eps, double &el)//vybor shaga ??
+void shag(double y[m], double x, double &h, double eps, double &el)
 {// ф-я алгор. автомат.выбора шага h𝒌
 	double yh[m], yhh[m];
 	for (;;)
@@ -65,7 +64,6 @@ void shag(double y[m], double x, double &h, double eps, double &el)//vybor shaga
 void MetRK(double y[m], double x, double xN, double h, double eps, double q)
 {
 	double el; // погрешность решения на шаге
-	shag(y, 0.1, h, eps, el);
 	if (q == 0){
 		cout << setw(10) << "x" << setw(10) << "y[0]" << setw(10) //заголовки таблицы
 			<< "y[1]" << setw(10) << "y[2]" << setw(10) << "h" << setw(10) << "el" << endl;
@@ -90,59 +88,33 @@ void MetRK(double y[m], double x, double xN, double h, double eps, double q)
 	}
 }
 
-
 //======================дихотомия(метод пристрелки)==================
 double psi(double s){
-	double ps, u[m], x0 = 0.1, xN = 1., h;
-	int q = 1;
-	u[0] = 0; u[1] = 0, u[2] = s;
-	h = pow(eps, 1. / p);
-	MetRK(u, x0, xN, h, eps, q);
-	ps = u[1] - 0.5;
-	return ps;
+    double ps, u[m], x0=0.1, xN=1., h;
+    int q=1;
+    u[0] = 0; u[1] = 0, u[2] = s;
+    h = pow(eps, 1./p);
+    MetRK(u,x0,xN,h,eps,q);
+    ps = u[1] - 0.5;
+    return ps;
 }
 
-//===========дихотомия(половинного деления)==========================
-double function(double x){
-	return sin(2 * x) / (x*x);
-}
-double dichotomy(double a, double b, double eps)
-{
-	double mid = (a + b) / 2.0;
-	double s = 0;
-	while ((b - a) / 2.0 > eps)
-	{
-		if (function(mid) == 0){
-			return mid;
-		}
-		else if (function(a)*function(mid) < 0){
-			b = mid;
-		}
-		else{
-			a = mid;
-		}
-		mid = (a + b) / 2.0;
-		s++;
-	}
-	cout << "s = " << s << endl;
-	return mid;
-}
 //================главная функция====================================
 int main(){
-	double a = -4;
-	double b = 4, s;
-	cout << "psi(a) = " << psi(a) << "\npsi(b) = " << psi(b) << endl;
-	for (;;){
-		s = (b + a) / 2;
-		if (psi(s)*psi(b)<0)a = s;  //  ??  было if(psi(a)*psi(b)<0)a=s;
-		else b = s;
-		if (fabs(psi(s))<eps) break;   //  ??  было if(fabs(psi(s)<eps)) 
-	}
-	cout << "s= " << s << "\n psi(s) = " << psi(s) << endl; //Вывод найд. s  и  psi(s)
-	double  u[m], x0 = 0.1, xN = 1., h;
-	int q = 0;
-	u[0] = 0; u[1] = 0, u[2] = s;
-	h = pow(eps, 1. / p);
-	MetRK(u, x0, xN, h, eps, q);    // Вывод реш. зад.Коши совпад. с реш.краевой зад.
-	return 0;
+    double a = -4;
+    double b = 4, s;
+    cout<<"psi(a) = "<< psi(a)<<"\npsi(b) = "<< psi(b)<<endl;
+    for(;;){
+        s = (b+a)/2;
+        if(psi(s)*psi(b)<0)a=s;
+        else b=s;
+        if(fabs(psi(s))<eps) break;
+    }
+    cout<<"s= "<< s<<"\n psi(s) = "<< psi(s)<<endl;
+    double  u[m], x0=0.1, xN=1., h;
+    int q=0;
+    u[0] = 0; u[1] = 0, u[2] = s;
+    h = pow(eps, 1./p);
+    MetRK(u,x0,xN,h,eps,q);
+    return 0;
 }
