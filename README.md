@@ -1,2 +1,2 @@
-# Numerical-methods
-University projects in numerical methods
+# Progs
+Here are stored all my programs that I ever wrote.
