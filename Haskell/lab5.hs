@@ -19,8 +19,7 @@ getRaw xs =[x | Key x <- xs]
 isCapsLocked ::[KeyCode]->Bool
 isCapsLocked xs =foldl aux False xs where
   aux a key =
-case key of
-      CapsLock ->not_ a->a
+case key of CapsLock ->not a _-> a
  
  
 getString ::[KeyCode]->String
