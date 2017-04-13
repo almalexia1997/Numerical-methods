@@ -5,7 +5,7 @@
 #include <algorithm>
 using namespace std;
 
-const int N = 5, n0 = 7, n = 8, l=4, T=2, c=3; //const double pi=3.14159;
+const int N = 5, n0 = 7, l=4, T=2, c=3; //const double pi=3.14159;
 
 //ПРОТОТИПЫ
 double norma(double **nor, int N, int n0); //функция нормы 
@@ -36,14 +36,14 @@ int main()
 		y[0][k] = uk0(k*tau); // краев. услов. прибл.решения
 		y[N][k] = ukN(k*tau);
 	}
-	//Неявный метод
+	//3) Неявный метод
 	for (int k = 1; k<n0; k++) //цикл по временным слоям
 	{
 		for (int i = 1; i<N; i++)
 		{	//правая часть разн.сх. для прогонки
 			F[i] = (2 * y[i][k] - y[i][k - 1]) + tau*tau*(1. - 2.*sigma)*
-			((y[i - 1][k] - 2.*y[i][k] + y[i + 1][k]) / (h*h)) + sigma*tau*tau*((y[i - 1][k - 1] -
-			2.*y[i][k - 1] + y[i + 1][k - 1]) / (h*h)) + tau*tau*f(i*h, k*tau);
+			((y[i - 1][k] - 2.*y[i][k] + y[i + 1][k]) / (h*h)) + sigma*tau*tau*
+			((y[i - 1][k - 1] -	2.*y[i][k - 1] + y[i + 1][k - 1]) / (h*h)) + tau*tau*f(i*h, k*tau);
 			// краевые. усл. для прогонки
 			g0 = y[0][k + 1];
 			gN = y[N][k + 1]; 
@@ -57,15 +57,11 @@ int main()
 	for (int k = 0; k <= n0; k++, cout << endl)
 		for (int i = 0; i <= N; i++)
 			cout << fixed << setprecision(4) << y[i][k] << " ";
-	cout << "tochnoe reshenie" << endl;
-	/*for (int k = 0; k <= n0; k++, cout << endl)
-		for (int i = 0; i <= N; i++)
-			cout << fixed << setprecision(4) << u(i*h, k*tau) << " "; // tochnoe reshenie*/
 	cout << endl << "sigma= " << sigma << endl << endl;
 	/*for (int i = 0; i <= N; i++)
 		for (int j = 0; j <= n0; j++)
-			pogr[i][j] = fabs(y[i][j] - u(i*h, j*tau)); // погрешность*/
-	//cout << endl << " norma pogreshnosti " << norma(pogr, N, n0) << endl;
+			pogr[i][j] = fabs(y[i][j] - u(i*h, j*tau)); // погрешность
+	cout << endl << " norma pogreshnosti " << norma(pogr, N, n0) << endl;*/
 	cout << endl << " epsilon= " << eps << endl;
 	return 0;
 }
@@ -85,9 +81,6 @@ double uk0(double t){
 double ukN(double t){
 	return 0;
 }
-/*double u(double x, double t){
-	return n*x*x*x*t*t*t + x*t + x*n + 1;
-}*/
 
 void progonka(int N, double g0, double gN, double A, double B, double C, double *F, double *y)
 {
