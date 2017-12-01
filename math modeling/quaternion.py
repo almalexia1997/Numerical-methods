@@ -8,6 +8,7 @@ def dbl2str(n):
     ss = '+' if n >= 0 else '-'
     return ss, s
 
+a = int(input());
 
 class Quaternion(object):
     def __init__(q, w=0, x=0, y=0, z=0):
@@ -31,7 +32,17 @@ class Quaternion(object):
             q1.y - q2.y,
             q1.z - q2.z,
         )
+    
 
+        
+    def mul_skal(q1,a):
+        return  Quaternion(
+            q1.w * a,
+            q1.x * a,
+            q1.y * a,
+            q1.z * a,
+        )    
+    
     def __mul__(q1, q2):
         return Quaternion(
             q1.w*q2.w - q1.x*q2.x - q1.y*q2.y - q1.z*q2.z,
@@ -99,3 +110,21 @@ class Quaternion(object):
         q.x = q.x / norm,
         q.y = q.y / norm,
         q.z = q.z / norm,
+        
+    def trig(q1):
+        l = math.sqrt(q1.w*q1.w + q1.x*q1.x + q1.y*q1.y + q1.z*q1.z)
+        q2 = Quaternion(0, q1.x, q1.y, q1.z)
+        l2 = q2.normalize()
+        ksi = q2/l2
+        sin_alf = l2*(1/l)
+        #ksi_sin=ksi*sin_alf
+        #НАДО НАЙТИ УГОЛ ФИ ИЗ СИСТЕМЫ
+        cos_alf = q1.w/l
+        #return 'lamda(%d + %s)' % (cos_alf, ksi_sin)
+"""
+if __name__ == "__main__":
+    print('123')
+    
+    q1 = Quaternion(1, 2, 3, 4)
+    print(q1),    
+"""
