@@ -1,14 +1,24 @@
 import math
 
 def dbl2str(n):
+    st=str(n)
     d = abs(int(n));
-    f = int((n - d) * 1000000);
-    s = '%d.%d' % (d, f) if f > 0 else '%d' % d
+    dt = len(str(d))
+    if type(n)==type(int()):
+        s = '%d' % (n)  
+    elif n>0: 
+        s = '%d.%s' % (d, st[dt+1:dt+7])
+    else:
+        s = '%d.%s' % (d, st[dt+2:dt+8])
     ss = '+' if n >= 0 else '-'
     return ss, s
-
-#print("введите скаляр")
-a = int(input());
+    
+"""
+from quaternion import Quaternion as H
+q1 = H(2, 3, 2, 3)
+q2 = H(2, 3, 2, 3)
+q1 * q2
+"""
 
 class Quaternion(object):
     def __init__(q, w=0, x=0, y=0, z=0):
@@ -34,12 +44,12 @@ class Quaternion(object):
         )
     
    
-    def mul_skal(q1,a):
+    def mul_scal(self, a):
         return  Quaternion(
-            q1.w * a,
-            q1.x * a,
-            q1.y * a,
-            q1.z * a,
+            float(self.w) * float(a),
+            float(self.x) * float(a),
+            float(self.y) * float(a),
+            float(self.z) * float(a),
         )    
     
     def __mul__(q1, q2):
@@ -59,7 +69,7 @@ class Quaternion(object):
             (- q1.w*q2.z + q1.x*q2.y - q1.y*q2.x + q1.z*q2.w) / s
         )
 
-    def __abs__(q): #НОРМА!!!
+    def __abs__(q): #norma!!!
         return q.w*q.w + q.x*q.x + q.y*q.y + q.z*q.z;
 
     def __neg__(q):
@@ -92,42 +102,26 @@ class Quaternion(object):
         if args[0] == '+':
             args[0] = ''
         return '(%s%s %s %si %s %sj %s %sk)' % tuple(args)
-
-    """    
-    def normalize(q): #НЕ СОВСЕМ НОРМА!!!
-        ===        
-        Convert Quaternion to Unit Quaternion.
-
-        Unit Quaternion is Quaternion who's length is equal to 1.
-
-        >>> q = Quaternion((1, 3, 3, 3))
-        >>> q.normalize()
-        >>> print(q) # doctest: +ELLIPSIS
-        (0.1889822... + 0.5669467...i + 0.5669467...j + 0.5669467...k)
-        ===
-        
-        norm = abs(q)
-        q.w = q.w / norm,
-        q.x = q.x / norm,
-        q.y = q.y / norm,
-        q.z = q.z / norm,
-    """
-    
-    def trig(q1):
-        l = math.sqrt(abs(q1)) #skalar
-        q2 = Quaternion(0, q1.x, q1.y, q1.z) #quat
-        l2 = math.sqrt(abs(q2)) #skalar
-        ksi = q2.mul_skal(q2,1/l2) # skalar
-        alpha=math.acos(q1.w/l)
-        if math.sin(alpha)==(l2/l):
+ 
+    def trig(self):
+        l = math.sqrt(abs(self)) #float
+        q2 = Quaternion(0, self.x, self.y, self.z) #quaternion
+        l2 = math.sqrt(abs(q2)) #float
+        ksi = q2.mul_scal(1./l2) # quaternion
+        if ksi.__repr__()[3:4] == '-': #the third digit always zero
+            ksi_str = '(' + ksi.__repr__()[3:4] + ksi.__repr__()[5:] #convert ksi to a string
+        else:
+            ksi_str = '(' + ksi.__repr__()[5:] #convert ksi to a string
+        alpha=math.acos(self.w/l) #float
+        if math.sin(alpha)==l2/l:
             alpha = alpha
         else:
             alpha = 2*math.pi - alpha
-        return '%d(%d + %d * %d)' % (l, math.cos(alpha), ksi, math.sin(alpha))
-"""
-if __name__ == "__main__":
-    print('123')
-    
-    q1 = Quaternion(1, 2, 3, 4)
-    print(q1),    
-"""
+        cos_alpha = math.cos(alpha)
+        sin_alpha = math.sin(alpha)
+        if sin_alpha>0:
+            sin_alpha = str(sin_alpha)[:8]
+        else:
+            sin_alpha = '(' + str(sin_alpha)[:9] + ')'
+        result = '%f * (%f + %s * %s)' % (l, cos_alpha, ksi_str, sin_alpha)
+        return result
