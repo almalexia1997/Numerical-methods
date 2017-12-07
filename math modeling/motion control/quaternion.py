@@ -119,14 +119,6 @@ class Quaternion(object):
             alpha = alpha
         else:
             alpha = 2*math.pi - alpha
-        """
-        cos_alpha = math.cos(alpha)
-        sin_alpha = math.sin(alpha)
-        if sin_alpha>0:
-            sin_alpha = str(sin_alpha)[:8]
-        else:
-            sin_alpha = '(' + str(sin_alpha)[:9] + ')'
-        """
         result = '%f * (cos(%f) + %s * sin(%f)' % (l, grad_alpha, ksi_str, grad_alpha)
         return result
 
