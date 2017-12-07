@@ -113,15 +113,20 @@ class Quaternion(object):
         else:
             ksi_str = '(' + ksi.__repr__()[5:] #convert ksi to a string
         alpha=math.acos(self.w/l) #float
+        grad_alpha = math.degrees(alpha)
+        print(grad_alpha)
         if math.sin(alpha)==l2/l:
             alpha = alpha
         else:
             alpha = 2*math.pi - alpha
+        """
         cos_alpha = math.cos(alpha)
         sin_alpha = math.sin(alpha)
         if sin_alpha>0:
             sin_alpha = str(sin_alpha)[:8]
         else:
             sin_alpha = '(' + str(sin_alpha)[:9] + ')'
-        result = '%f * (%f + %s * %s)' % (l, cos_alpha, ksi_str, sin_alpha)
+        """
+        result = '%f * (cos(%f) + %s * sin(%f)' % (l, grad_alpha, ksi_str, grad_alpha)
         return result
+
