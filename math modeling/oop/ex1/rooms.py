@@ -21,5 +21,6 @@ class rooms:
     def getPrize(self): return self.__prize
 
     def getShow(self):
-        s='{0}, {1}, {2}, {3}, {4}'.format(self.getCode(), self.getNumber(), self.getNumperson(), self.getComf(), self.getPrize())
+        #s='{0}, {1}, {2}, {3}, {4}'.format(self.getCode(), self.getNumber(), self.getNumperson(), self.getComf(), self.getPrize())
+        s = "%s, %s, %s, %s, %s"% (self.getCode(), self.getNumber(), self.getNumperson(), self.getComf(), self.getPrize())
         return s
