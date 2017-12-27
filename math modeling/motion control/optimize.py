@@ -13,4 +13,3 @@ f1 = 0.6 * x[0] * x[1] +0.3 * u1
 f2 = 0.3 * x[1] + 0.7 * x[0] - 0.1 * x[0] * u2
 print("check calculations:")
 print ("f1 = %f\nf2 = %f" % (f1, f2))
-
