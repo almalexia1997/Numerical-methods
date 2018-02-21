@@ -34,12 +34,13 @@ while ($line2 = mysql_fetch_array($r2, MYSQL_ASSOC)) {
 echo '</table><br>';
 
 echo "ЗАДОЛЖЕННОСТИ ПО СЧЕТАМ";
-$r3 = mysql_query("SELECT num, name, (SELECT SUM(price) from bill_content where bill_content.bid=bill.bid) as count, (SELECT count-SUM(summa) from payment where payment.bid=bill.bid) from bill");
+$r3 = mysql_query("SELECT num, name, (SELECT SUM(price) from bill_content where bill_content.bid=bill.bid) as count, (SELECT SUM(summa) from payment where payment.bid=bill.bid) as pay, (SELECT count-pay) from bill");
 echo '<table border="1">';
 echo '<tr>
         <th>num</th>
         <th>name</th>
         <th>sum</th>
+        <th>pay</th>
         <th>debt</th>
       </tr>';
 while ($line3 = mysql_fetch_array($r3, MYSQL_ASSOC)) {
