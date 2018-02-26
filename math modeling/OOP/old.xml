@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<hotel>
+   <client code="1" nclient="1" family="Robert" name="Bet" sname="Berson" data="22.11.2017" comment="-" />
+   <client code="2" nclient="2" family="Smith" name="Adam" sname="Li" data="25.11.2017" comment="-"/>
+   <client code="3" nclient="3" family="Chasov" name="Anton" sname="Alekseevich" data="21.11.2017" comment="-" />
+
+   <rooms code="1" number="1" numperson="2" comf="very good" prize="2500" />
+   <rooms code="2" number="2" numperson="4" comf="very good" prize="4500" />
+   <rooms code="3" number="3" numperson="2" comf="very good" prize="2500" />
+
+   <sattlements code="1" client="3" number="1" sdate="21.11.2017" rdate="21.11.2017" note="-" />
+   <sattlements code="2" client="2" number="2" sdate="22.11.2017" rdate="23.11.2017" note="-" />
+   <sattlements code="3" client="1" number="3" sdate="19.11.2017" rdate="25.11.2017" note="-" />
+
+</hotel>
